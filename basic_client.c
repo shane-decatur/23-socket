@@ -3,10 +3,9 @@
 
 int main() {
 
-  int to_server;
-  int from_server;
+  int sd;
 
-  from_server = client_handshake( &to_server );
+  sd = client_handshake();
 
   while(1){
     char *line = calloc(BUFFER_SIZE,1);

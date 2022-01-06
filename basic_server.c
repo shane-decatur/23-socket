@@ -3,35 +3,21 @@
 
 int main() {
 
-  int to_client;
-  int from_client;
+  int sd;
 
-  while (1){
+  sd = server_handshake();
 
-    from_client = server_setup();
+  char *line = calloc(BUFFER_SIZE,1);
 
-    int f = fork();
+  while (read(sd,line,BUFFER_SIZE)){
 
-    if (!f){
+    int i = 0;
+    for (i = 0; i < strlen(line); i++) {
+				if (line[i] >= 97 && line[i] <= 122) line[i] -= 32;
+		}
 
-      to_client = server_connect(from_client);
-      printf("Client connected\n");
-      char *line = calloc(BUFFER_SIZE,1);
-      read(from_client,line,BUFFER_SIZE);
-
-      while (read(from_client,line,BUFFER_SIZE)){
-
-        int i = 0;
-        for (i = 0; i < strlen(line); i++) {
-    				if (line[i] >= 97 && line[i] <= 122) line[i] -= 32;
-    		}
-
-        write(to_client,line,BUFFER_SIZE);
-      }
-      printf("Client exited\n");
-    }
-
+    write(sd,line,BUFFER_SIZE);
   }
 
-
+  return 0;
 }
