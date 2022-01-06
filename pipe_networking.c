@@ -12,36 +12,36 @@
 
   returns the file descriptor for the upstream pipe.
   =========================*/
-int server_setup() {
-
-  mkfifo(WKP,0644);
-  int from_client = open(WKP, O_RDONLY);
-  remove(WKP);
-
-  return from_client;
-}
-
-
-/*=========================
-  server_connect
-  args: int from_client
-
-  handles the subserver portion of the 3 way handshake
-
-  returns the file descriptor for the downstream pipe.
-  =========================*/
-int server_connect(int from_client) {
-
-  char *buffer = calloc(HANDSHAKE_BUFFER_SIZE,1);
-  read(from_client, buffer, HANDSHAKE_BUFFER_SIZE);
-
-  int to_client = open(buffer, O_WRONLY);
-
-  write(to_client,ACK,HANDSHAKE_BUFFER_SIZE);
-  read(from_client,ACK,HANDSHAKE_BUFFER_SIZE);
-
-  return to_client;
-}
+// int server_setup() {
+//
+//   mkfifo(WKP,0644);
+//   int from_client = open(WKP, O_RDONLY);
+//   remove(WKP);
+//
+//   return from_client;
+// }
+//
+//
+// /*=========================
+//   server_connect
+//   args: int from_client
+//
+//   handles the subserver portion of the 3 way handshake
+//
+//   returns the file descriptor for the downstream pipe.
+//   =========================*/
+// int server_connect(int from_client) {
+//
+//   char *buffer = calloc(HANDSHAKE_BUFFER_SIZE,1);
+//   read(from_client, buffer, HANDSHAKE_BUFFER_SIZE);
+//
+//   int to_client = open(buffer, O_WRONLY);
+//
+//   write(to_client,ACK,HANDSHAKE_BUFFER_SIZE);
+//   read(from_client,ACK,HANDSHAKE_BUFFER_SIZE);
+//
+//   return to_client;
+// }
 
 
 /*=========================
@@ -55,15 +55,13 @@ int server_connect(int from_client) {
   =========================*/
 int server_handshake() {
 
-  //use getaddrinfo
   struct addrinfo * hints, * results;
   hints = calloc(1,sizeof(struct addrinfo));
   hints->ai_family = AF_INET;
-  hints->ai_socktype = SOCK_STREAM; //TCP socket
-  hints->ai_flags = AI_PASSIVE; //only needed on server
-  getaddrinfo(NULL, 9845, hints, &results);  //Server sets node to NULL
+  hints->ai_socktype = SOCK_STREAM;
+  hints->ai_flags = AI_PASSIVE;
+  getaddrinfo(NULL, 9845, hints, &results);
 
-  //create socket
   int sd = socket(results->ai_family, results->ai_socktype, results->ai_protocol);
 
   bind(sd, results->ai_addr, results->ai_addrlen);
@@ -97,8 +95,6 @@ int server_handshake() {
   }
   else{
       return client;
-      }
-    }
   }
 
   return from_client;
@@ -116,28 +112,19 @@ int server_handshake() {
   =========================*/
 int client_handshake() {
 
-  //use getaddrinfo
   struct addrinfo * hints, * results;
   hints = calloc(1,sizeof(struct addrinfo));
   hints->ai_family = AF_INET;
-  hints->ai_socktype = SOCK_STREAM; //TCP socket
-  hints->ai_flags = AI_PASSIVE; //only needed on server
-  getaddrinfo(NULL, 9845, hints, &results);  //Server sets node to NULL
+  hints->ai_socktype = SOCK_STREAM;
+  hints->ai_flags = AI_PASSIVE;
+  getaddrinfo(NULL, 9845, hints, &results);
 
-  //create socket
-  int sd = socket(results->ai_family, results->ai_socktype, results->ai_protocol);
-
-  bind(sd, results->ai_addr, results->ai_addrlen);
-
-  //DO STUFF
-
-  free(hints)
-  freeaddrinfo(results);
-
-  //create socket
   int sd = socket(results->ai_family, results->ai_socktype, results->ai_protocol);
 
   connect(sd, results->ai_addr, results->ai_addrlen);
 
-  return from_server;
+  free(hints)
+  freeaddrinfo(results);
+
+  return sd;
 }
